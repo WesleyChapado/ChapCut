@@ -4,6 +4,7 @@ import { extractFeatures } from './layoutCompare'
 import type { LoadedPdf, PageThumbnail } from '../types'
 
 const THUMBNAIL_WIDTH = 120
+const PREVIEW_WIDTH = 560
 const RENDER_WIDTH = 120
 
 async function renderPageToCanvas(
@@ -50,6 +51,14 @@ export async function loadPdf(
   }
 
   return { pdfDocument, pageCount, thumbnails, bytes }
+}
+
+export async function renderPagePreview(
+  pdfDocument: PDFDocumentProxy,
+  pageIndex: number,
+): Promise<string> {
+  const canvas = await renderPageToCanvas(pdfDocument, pageIndex, PREVIEW_WIDTH)
+  return canvas.toDataURL('image/jpeg', 0.92)
 }
 
 export async function extractPageFeatures(

@@ -3,6 +3,7 @@ interface PageThumbnailProps {
   dataUrl: string
   selected: boolean
   onSelect: () => void
+  compact?: boolean
 }
 
 export function PageThumbnail({
@@ -10,15 +11,18 @@ export function PageThumbnail({
   dataUrl,
   selected,
   onSelect,
+  compact = false,
 }: PageThumbnailProps) {
   return (
     <button
       type="button"
-      className={`page-thumbnail${selected ? ' page-thumbnail--selected' : ''}`}
+      className={`page-thumbnail${compact ? ' page-thumbnail--compact' : ''}${selected ? ' page-thumbnail--selected' : ''}`}
       onClick={onSelect}
+      aria-label={`Página ${pageNumber}`}
+      aria-current={selected ? 'true' : undefined}
     >
-      <span className="page-thumbnail__label">Página {pageNumber}</span>
-      <img src={dataUrl} alt={`Página ${pageNumber}`} className="page-thumbnail__image" />
+      <img src={dataUrl} alt="" className="page-thumbnail__image" />
+      <span className="page-thumbnail__label">{pageNumber}</span>
     </button>
   )
 }

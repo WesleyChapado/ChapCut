@@ -14,7 +14,6 @@ function App() {
   const [step, setStep] = useState<AppStep>('upload')
   const [loadedPdf, setLoadedPdf] = useState<LoadedPdf | null>(null)
   const [selectedPageIndex, setSelectedPageIndex] = useState<number | null>(null)
-  const [modelPageIndex, setModelPageIndex] = useState<number | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loadingThumbnails, setLoadingThumbnails] = useState(false)
   const [thumbnailProgress, setThumbnailProgress] = useState({ current: 0, total: 0 })
@@ -30,13 +29,13 @@ function App() {
     setLoadingThumbnails(true)
     setThumbnailProgress({ current: 0, total: 0 })
     setSelectedPageIndex(null)
-    setModelPageIndex(null)
 
     try {
       const pdf = await loadPdf(file, (current, total) => {
         setThumbnailProgress({ current, total })
       })
       setLoadedPdf(pdf)
+      setSelectedPageIndex(0)
       setStep('selectModel')
     } catch (err) {
       logProcessingError('carregamento', err)
@@ -46,13 +45,10 @@ function App() {
     }
   }, [])
 
-  const handleConfirmModel = () => {
-    if (selectedPageIndex === null) return
-    setModelPageIndex(selectedPageIndex)
-  }
-
   const handleSplit = async () => {
-    if (!loadedPdf || modelPageIndex === null) return
+    if (!loadedPdf || selectedPageIndex === null) return
+
+    const modelPageIndex = selectedPageIndex
 
     setStep('processing')
     setError(null)
@@ -108,7 +104,6 @@ function App() {
     setStep('upload')
     setLoadedPdf(null)
     setSelectedPageIndex(null)
-    setModelPageIndex(null)
     setError(null)
     setDocumentCount(0)
   }
@@ -143,12 +138,11 @@ function App() {
       {step === 'selectModel' && loadedPdf && (
         <section className="app__section">
           <PageGrid
+            pdfDocument={loadedPdf.pdfDocument}
             thumbnails={loadedPdf.thumbnails}
             selectedPageIndex={selectedPageIndex}
             onSelectPage={setSelectedPageIndex}
-            onConfirmModel={handleConfirmModel}
             onSplit={handleSplit}
-            modelPageIndex={modelPageIndex}
             isProcessing={false}
           />
         </section>
