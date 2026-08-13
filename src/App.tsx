@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react'
 import { FileUpload } from './components/FileUpload'
 import { Logo } from './components/Logo'
+import { ThemeToggle } from './components/ThemeToggle'
 import { PageGrid } from './components/PageGrid'
 import { ProcessingOverlay } from './components/ProcessingOverlay'
 import { detectLayoutMatchIndices, groupPagesByLayoutMatches } from './lib/layoutCompare'
@@ -26,6 +27,8 @@ function App() {
 
   const handleFileSelect = useCallback(async (file: File) => {
     setError(null)
+    setStep('upload')
+    setLoadedPdf(null)
     setLoadingThumbnails(true)
     setThumbnailProgress({ current: 0, total: 0 })
     setSelectedPageIndex(null)
@@ -111,11 +114,12 @@ function App() {
   return (
     <div className="app">
       <header className="app__header">
-        <Logo />
+        <Logo onClick={handleReset} />
         <p className="app__subtitle">
           Divida um PDF em vários documentos comparando o layout de cada página com uma página
           modelo escolhida por você. Todo o processamento é feito localmente no seu navegador.
         </p>
+        <ThemeToggle />
       </header>
 
       {error && <div className="app__error">{error}</div>}
@@ -143,6 +147,8 @@ function App() {
             selectedPageIndex={selectedPageIndex}
             onSelectPage={setSelectedPageIndex}
             onSplit={handleSplit}
+            onFileSelect={handleFileSelect}
+            onInvalidFile={() => setError('Selecione um arquivo PDF válido.')}
             isProcessing={false}
           />
         </section>

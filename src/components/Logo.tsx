@@ -1,6 +1,13 @@
-export function Logo() {
+import logoDark from '../assets/logo_white.png'
+import logoLight from '../assets/logo_black.png'
+
+interface LogoProps {
+  onClick?: () => void
+}
+
+export function Logo({ onClick }: LogoProps) {
   return (
-    <div className="logo">
+    <button type="button" className="logo" onClick={onClick} aria-label="Voltar à página inicial">
       <div className="logo__mark" aria-hidden="true">
         <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
           <rect x="8" y="6" width="24" height="32" rx="3" className="logo__page logo__page--back" />
@@ -15,11 +22,10 @@ export function Logo() {
         </svg>
       </div>
       <div className="logo__text">
-        <span className="logo__name">
-          Chap<span className="logo__name-accent">Cut</span>
-        </span>
-        <span className="logo__tagline">PDF Splitter por Layout</span>
+        <img src={logoLight} alt="Celnar" className="logo__img logo__img--light" />
+        <img src={logoDark} alt="" className="logo__img logo__img--dark" />
+        <span className="logo__tagline">Celnar transportes rodoviários LTDA.</span>
       </div>
-    </div>
+    </button>
   )
 }

@@ -12,6 +12,8 @@ interface PageGridProps {
   selectedPageIndex: number | null
   onSelectPage: (pageIndex: number) => void
   onSplit: () => void
+  onFileSelect: (file: File) => void
+  onInvalidFile?: () => void
   isProcessing: boolean
 }
 
@@ -21,9 +23,12 @@ export function PageGrid({
   selectedPageIndex,
   onSelectPage,
   onSplit,
+  onFileSelect,
+  onInvalidFile,
   isProcessing,
 }: PageGridProps) {
   const carouselRef = useRef<HTMLDivElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [previewLoading, setPreviewLoading] = useState(false)
   const selectedThumb = thumbnails.find((t) => t.pageIndex === selectedPageIndex) ?? null
@@ -108,14 +113,42 @@ export function PageGrid({
         dataUrl={previewUrl}
         loading={previewLoading}
         action={
-          <button
-            type="button"
-            className="btn btn--primary btn--wide"
-            onClick={onSplit}
-            disabled={selectedPageIndex === null || isProcessing}
-          >
-            Dividir PDF
-          </button>
+          <div className="page-preview__actions">
+            <button
+              type="button"
+              className="btn btn--primary btn--wide"
+              onClick={onSplit}
+              disabled={selectedPageIndex === null || isProcessing}
+            >
+              Dividir PDF
+            </button>
+            <button
+              type="button"
+              className="btn btn--secondary btn--wide"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isProcessing}
+            >
+              Selecionar outro PDF
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              className="file-upload__input"
+              accept="application/pdf,.pdf"
+              tabIndex={-1}
+              aria-hidden
+              onChange={(e) => {
+                const file = e.target.files?.[0]
+                e.target.value = ''
+                if (!file) return
+                if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+                  onInvalidFile?.()
+                  return
+                }
+                onFileSelect(file)
+              }}
+            />
+          </div>
         }
       />
     </div>
