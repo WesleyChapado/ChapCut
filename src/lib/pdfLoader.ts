@@ -5,7 +5,7 @@ import type { LoadedPdf, PageThumbnail } from '../types'
 
 const THUMBNAIL_WIDTH = 120
 const PREVIEW_WIDTH = 560
-const RENDER_WIDTH = 120
+const RENDER_WIDTH = 400
 
 async function renderPageToCanvas(
   pdfDocument: PDFDocumentProxy,
