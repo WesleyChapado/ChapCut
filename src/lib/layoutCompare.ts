@@ -1,5 +1,6 @@
 const GRID_SIZE = 16
 const MIN_LAYOUT_GAP = 0.03
+const TWO_PAGE_SPLIT_GAP = 0.2
 const MODEL_PROXIMITY = 0.012
 
 function otsuThreshold(gray: Float32Array): number {
@@ -148,15 +149,31 @@ export function computeLayoutMatchThreshold(scores: number[]): number {
 
   const sorted = [...scores].sort((a, b) => b - a)
   const maxScore = sorted[0]!
+  const fallback = maxScore - MODEL_PROXIMITY
 
-  for (let i = 0; i < sorted.length - 1; i++) {
-    const gap = sorted[i]! - sorted[i + 1]!
-    if (gap >= MIN_LAYOUT_GAP) {
-      return (sorted[i]! + sorted[i + 1]!) / 2
+  if (sorted.length < 2) return fallback
+
+  if (sorted.length === 2) {
+    const low = sorted[1]!
+    const gap = maxScore - low
+    if (gap >= TWO_PAGE_SPLIT_GAP) return (maxScore + low) / 2
+    return low
+  }
+
+  let bestGap = 0
+  let threshold = fallback
+
+  for (let i = 1; i < sorted.length - 1; i++) {
+    const high = sorted[i]!
+    const low = sorted[i + 1]!
+    const gap = high - low
+    if (gap >= MIN_LAYOUT_GAP && gap > bestGap) {
+      bestGap = gap
+      threshold = (high + low) / 2
     }
   }
 
-  return maxScore - MODEL_PROXIMITY
+  return threshold
 }
 
 export function detectLayoutMatchIndices(

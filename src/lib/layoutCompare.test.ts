@@ -43,6 +43,34 @@ describe('computeLayoutMatchThreshold', () => {
     expect(matches.length).toBe(1)
     expect(matches[0]).toBe(1)
   })
+
+  it('does not isolate the model page when other covers score below 0.97', () => {
+    const scores = [1, 0.933, 0.93, 0.926, 0.905, 0.124, 0.084, 0.078, 0.068, 0.062]
+    const threshold = computeLayoutMatchThreshold(scores)
+    const matches = scores.filter((score) => score >= threshold)
+    expect(matches).toEqual([1, 0.933, 0.93, 0.926, 0.905])
+  })
+
+  it('keeps the cover cluster when the model is an outlier above 0.6', () => {
+    const covers = [1, 0.631, 0.577, 0.556, 0.548, 0.545, 0.525]
+    const contents = [0.33, 0.299, 0.277, 0.244, 0.17, 0.12]
+    const scores = [...covers, ...contents]
+    const threshold = computeLayoutMatchThreshold(scores)
+    const matches = scores.filter((score) => score >= threshold)
+    expect(matches.sort((a, b) => b - a)).toEqual([...covers].sort((a, b) => b - a))
+  })
+
+  it('matches both pages when a two-page document has similar layout', () => {
+    const scores = [1, 0.92]
+    const threshold = computeLayoutMatchThreshold(scores)
+    expect(scores.filter((score) => score >= threshold)).toEqual([1, 0.92])
+  })
+
+  it('splits a two-page document when layouts differ', () => {
+    const scores = [1, 0.12]
+    const threshold = computeLayoutMatchThreshold(scores)
+    expect(scores.filter((score) => score >= threshold)).toEqual([1])
+  })
 })
 
 describe('detectLayoutMatchIndices', () => {
